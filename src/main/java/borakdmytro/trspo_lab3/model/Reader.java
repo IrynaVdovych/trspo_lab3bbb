@@ -17,14 +17,17 @@ public class Reader {
     @Column(name = "reader_id")
     private int id;
 
+    @Column(unique = true)
     private String name;
 
     @NotBlank
     @Email
+    @Column(unique = true)
     private String email;
 
     @NotNull
     @Size(min = 6)
+    @Column
     private String password;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
