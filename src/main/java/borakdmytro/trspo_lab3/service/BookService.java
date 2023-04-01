@@ -2,11 +2,11 @@ package borakdmytro.trspo_lab3.service;
 
 import borakdmytro.trspo_lab3.model.Book;
 import borakdmytro.trspo_lab3.repository.BookRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 public class BookService {
@@ -23,7 +23,7 @@ public class BookService {
     }
 
     public Book getBookById(int id) {
-        return bookRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Book not found"));
+        return bookRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Book not found"));
     }
 
     public List<Book> findBooksByTitle(String title) {
@@ -38,21 +38,19 @@ public class BookService {
         return bookRepository.save(book);
     }
 
-    public Book updateBook(int id, Book book) {
-        Book existingBook = bookRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Book not found"));
-        existingBook.setTitle(book.getTitle());
-        existingBook.setAuthor(book.getAuthor());
-        existingBook.setAnnotation(book.getAnnotation());
-        existingBook.setPages(book.getPages());
-        existingBook.setYear(book.getYear());
-        existingBook.setTotalAmount(book.getTotalAmount());
+    public Book updateBook(Book book) {
+        if (!bookRepository.existsById(book.getId())) {
+            throw new EntityNotFoundException("Book with id " + book.getId() + " not found");
+        }
         // todo calculate available amount
-//        existingBook.setAvailableAmount(book.getAvailableAmount());
-        return bookRepository.save(existingBook);
+        return bookRepository.save(book);
     }
 
-    // не видаляти якщо є в позичанні
     public void deleteBook(int id) {
+        if (!bookRepository.existsById(id)) {
+            throw new EntityNotFoundException("Book with id " + id + " not found");
+        }
+        // todo не видаляти якщо є в позичанні
         bookRepository.deleteById(id);
     }
 }

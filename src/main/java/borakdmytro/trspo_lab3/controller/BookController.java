@@ -5,10 +5,10 @@ import borakdmytro.trspo_lab3.model.Book;
 import borakdmytro.trspo_lab3.service.BookService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -56,14 +56,15 @@ public class BookController {
         book.setAvailableAmount(book.getTotalAmount());
         book = bookService.createBook(book);
         BookDTO createdBookDTO = BookDTO.fromEntity(book);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdBookDTO);
+        URI location = URI.create("/books/" + book.getId());
+        return ResponseEntity.created(location).body(createdBookDTO);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<BookDTO> updateBook(@PathVariable int id, @RequestBody @Valid BookDTO bookDTO) {
         Book book = bookDTO.toEntity();
         book.setId(id);
-        book = bookService.updateBook(id, book);
+        book = bookService.updateBook(book);
         BookDTO updatedBookDTO = BookDTO.fromEntity(book);
         return ResponseEntity.ok(updatedBookDTO);
     }
