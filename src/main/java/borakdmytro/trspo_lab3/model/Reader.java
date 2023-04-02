@@ -30,6 +30,6 @@ public class Reader {
     @Column
     private String password;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Borrowing> borrowings;
 }

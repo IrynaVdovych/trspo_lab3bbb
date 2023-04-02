@@ -7,8 +7,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-import java.util.List;
-
 @Entity
 @Data
 public class Librarian {
@@ -33,7 +31,4 @@ public class Librarian {
     @Size(min = 6)
     @Column
     private String password;
-
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    private List<Borrowing> borrowings;
 }
