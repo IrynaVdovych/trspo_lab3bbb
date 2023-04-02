@@ -4,6 +4,7 @@ import borakdmytro.trspo_lab3.model.Book;
 import borakdmytro.trspo_lab3.model.Borrowing;
 import borakdmytro.trspo_lab3.model.BorrowingStatus;
 import borakdmytro.trspo_lab3.model.Reader;
+import borakdmytro.trspo_lab3.repository.BookRepository;
 import borakdmytro.trspo_lab3.repository.BorrowingRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,12 +20,12 @@ import java.util.stream.Stream;
 @Service
 public class BorrowingService {
     private final BorrowingRepository borrowingRepository;
-    private final BookService bookService;
+    private final BookRepository bookRepository;
 
     @Autowired
-    public BorrowingService(BorrowingRepository borrowingRepository, BookService bookService) {
+    public BorrowingService(BorrowingRepository borrowingRepository, BookRepository bookRepository) {
         this.borrowingRepository = borrowingRepository;
-        this.bookService = bookService;
+        this.bookRepository = bookRepository;
     }
 
     public Borrowing getBorrowingById(int id) throws EntityNotFoundException {
@@ -79,8 +80,9 @@ public class BorrowingService {
         borrowing.setStatus(BorrowingStatus.CREATED);
         borrowing.setStartDateTime(LocalDateTime.now());
         Borrowing newBorrowing = borrowingRepository.save(borrowing);
-        Book book = bookService.getBookById(borrowing.getBook().getId());
-        bookService.updateBook(book); // recalculate booksInUse;
+        Book book = borrowing.getBook();
+        book.setAvailableAmount(book.getAvailableAmount() - countBooksInUse(book.getId())); // recalculate booksInUse;
+        bookRepository.save(book);
         return newBorrowing;
     }
 
@@ -90,8 +92,9 @@ public class BorrowingService {
             throw new EntityNotFoundException("Borrowing with id " + borrowing.getId() + " not found");
         }
         Borrowing newBorrowing = borrowingRepository.save(borrowing);
-        Book book = bookService.getBookById(borrowing.getBook().getId());
-        bookService.updateBook(book); // recalculate booksInUse;
+        Book book = borrowing.getBook();
+        book.setAvailableAmount(book.getAvailableAmount() - countBooksInUse(book.getId())); // recalculate booksInUse;
+        bookRepository.save(book);
         return newBorrowing;
     }
 
