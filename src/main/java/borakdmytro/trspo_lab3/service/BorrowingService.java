@@ -1,10 +1,13 @@
 package borakdmytro.trspo_lab3.service;
 
+import borakdmytro.trspo_lab3.model.Book;
 import borakdmytro.trspo_lab3.model.Borrowing;
 import borakdmytro.trspo_lab3.model.BorrowingStatus;
 import borakdmytro.trspo_lab3.model.Reader;
 import borakdmytro.trspo_lab3.repository.BorrowingRepository;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,26 +19,16 @@ import java.util.stream.Stream;
 @Service
 public class BorrowingService {
     private final BorrowingRepository borrowingRepository;
+    private final BookService bookService;
 
     @Autowired
-    public BorrowingService(BorrowingRepository borrowingRepository) {
+    public BorrowingService(BorrowingRepository borrowingRepository, BookService bookService) {
         this.borrowingRepository = borrowingRepository;
+        this.bookService = bookService;
     }
 
-    public Borrowing getBorrowingById(int id) {
+    public Borrowing getBorrowingById(int id) throws EntityNotFoundException {
         return borrowingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Borrowing not found"));
-    }
-
-    public List<Borrowing> getNewBorrowings() {
-        return borrowingRepository.findAllByStatus(BorrowingStatus.CREATED);
-    }
-
-    public List<Borrowing> getActiveBorrowings() {
-        List<Borrowing> confirmed = borrowingRepository.findAllByStatus(BorrowingStatus.CONFIRMED);
-        List<Borrowing> expired = borrowingRepository.findAllByStatus(BorrowingStatus.EXPIRED);
-        return Stream.of(confirmed, expired)
-                .flatMap(List::stream)
-                .toList();
     }
 
     public List<Borrowing> getAllBorrowings() {
@@ -44,6 +37,20 @@ public class BorrowingService {
         return borrowings;
     }
 
+    public List<Borrowing> getNewBorrowings() {
+        return borrowingRepository.findAllByStatus(BorrowingStatus.CREATED);
+    }
+
+    @Transactional
+    public List<Borrowing> getActiveBorrowings() {
+        List<Borrowing> confirmed = borrowingRepository.findAllByStatus(BorrowingStatus.CONFIRMED);
+        List<Borrowing> expired = borrowingRepository.findAllByStatus(BorrowingStatus.EXPIRED);
+        return Stream.of(confirmed, expired)
+                .flatMap(List::stream)
+                .toList();
+    }
+
+    @Transactional
     public List<Borrowing> getReaderActiveBorrowings(Reader reader) {
         List<Borrowing> created = borrowingRepository.findAllByReaderAndStatus(reader, BorrowingStatus.CREATED);
         List<Borrowing> confirmed = borrowingRepository.findAllByReaderAndStatus(reader, BorrowingStatus.CONFIRMED);
@@ -53,6 +60,7 @@ public class BorrowingService {
                 .toList();
     }
 
+    @Transactional
     public List<Borrowing> getReaderBorrowingsHistory(Reader reader) {
         List<Borrowing> created = borrowingRepository.findAllByReaderAndStatus(reader, BorrowingStatus.NOT_CONFIRMED);
         List<Borrowing> confirmed = borrowingRepository.findAllByReaderAndStatus(reader, BorrowingStatus.CANCELED);
@@ -63,16 +71,38 @@ public class BorrowingService {
                 .toList();
     }
 
-    public Borrowing createBorrowing(Borrowing borrowing) {
+    @Transactional
+    public Borrowing createBorrowing(Borrowing borrowing) throws EntityExistsException {
+        if (!borrowingRepository.existsById(borrowing.getId())) {
+            throw new EntityExistsException("Borrowing with id " + borrowing.getId() + " already exist");
+        }
         borrowing.setStatus(BorrowingStatus.CREATED);
         borrowing.setStartDateTime(LocalDateTime.now());
-        return borrowingRepository.save(borrowing);
+        Borrowing newBorrowing = borrowingRepository.save(borrowing);
+        Book book = bookService.getBookById(borrowing.getBook().getId());
+        bookService.updateBook(book); // recalculate booksInUse;
+        return newBorrowing;
     }
 
-    public Borrowing updateBorrowing(Borrowing borrowing) {
+    @Transactional
+    public Borrowing updateBorrowing(Borrowing borrowing) throws EntityNotFoundException {
         if (!borrowingRepository.existsById(borrowing.getId())) {
-            throw new EntityNotFoundException("Book with id " + borrowing.getId() + " not found");
+            throw new EntityNotFoundException("Borrowing with id " + borrowing.getId() + " not found");
         }
-        return borrowingRepository.save(borrowing);
+        Borrowing newBorrowing = borrowingRepository.save(borrowing);
+        Book book = bookService.getBookById(borrowing.getBook().getId());
+        bookService.updateBook(book); // recalculate booksInUse;
+        return newBorrowing;
+    }
+
+    protected int countBooksInUse(int bookId) {
+        List<BorrowingStatus> statuses = List.of(BorrowingStatus.CONFIRMED, BorrowingStatus.EXPIRED);
+        return borrowingRepository.countAllByBookIdAndStatusIn(bookId, statuses);
+    }
+
+    @Transactional
+    protected void deleteAllReaderBorrowings(int readerId) {
+        borrowingRepository.deleteAllByReaderIdAndStatus(readerId, BorrowingStatus.CREATED);
+        borrowingRepository.updateBorrowingsStatusForReader(readerId, BorrowingStatus.CONFIRMED, BorrowingStatus.EXPIRED);
     }
 }
