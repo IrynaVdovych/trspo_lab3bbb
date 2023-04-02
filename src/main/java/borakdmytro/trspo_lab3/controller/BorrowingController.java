@@ -158,7 +158,7 @@ public class BorrowingController {
     public ResponseEntity<BorrowingDTO> finishBorrowing(@PathVariable int id) {
         try {
             Borrowing borrowing = borrowingService.getBorrowingById(id);
-            if (borrowing.getStatus() == BorrowingStatus.CREATED
+            if (borrowing.getStatus() == BorrowingStatus.CONFIRMED
                     || borrowing.getStatus() == BorrowingStatus.EXPIRED) {
                 borrowing.setStatus(BorrowingStatus.FINISHED);
                 borrowing = borrowingService.updateBorrowing(borrowing);

@@ -74,7 +74,7 @@ public class BorrowingService {
 
     @Transactional
     public Borrowing createBorrowing(Borrowing borrowing) throws EntityExistsException {
-        if (!borrowingRepository.existsById(borrowing.getId())) {
+        if (borrowingRepository.existsById(borrowing.getId())) {
             throw new EntityExistsException("Borrowing with id " + borrowing.getId() + " already exist");
         }
         borrowing.setStatus(BorrowingStatus.CREATED);
