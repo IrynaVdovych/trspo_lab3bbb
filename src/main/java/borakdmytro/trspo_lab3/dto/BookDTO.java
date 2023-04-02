@@ -6,6 +6,8 @@ import lombok.Data;
 
 @Data
 public class BookDTO {
+    @Null
+    private Integer bookId;
 
     @NotBlank
     private String title;
@@ -32,6 +34,7 @@ public class BookDTO {
 
     public static BookDTO fromEntity(Book book) {
         BookDTO dto = new BookDTO();
+        dto.setBookId(book.getId());
         dto.setTitle(book.getTitle());
         dto.setAuthor(book.getAuthor());
         dto.setAnnotation(book.getAnnotation());

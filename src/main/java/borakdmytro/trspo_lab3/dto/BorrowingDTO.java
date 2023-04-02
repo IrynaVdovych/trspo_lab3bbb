@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 
 @Data
 public class BorrowingDTO {
+    @Null
+    private Integer borrowingId;
     @PositiveOrZero
     private int readerId;
 
@@ -27,6 +29,7 @@ public class BorrowingDTO {
 
     public static BorrowingDTO fromEntity(Borrowing borrowing) {
         BorrowingDTO dto = new BorrowingDTO();
+        dto.setBorrowingId(borrowing.getId());
         dto.setReaderId(borrowing.getReader().getId());
         dto.setBookId(borrowing.getBook().getId());
         dto.setStartDateTime(borrowing.getStartDateTime());

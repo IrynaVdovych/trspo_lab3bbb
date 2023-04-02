@@ -3,11 +3,14 @@ package borakdmytro.trspo_lab3.dto;
 import borakdmytro.trspo_lab3.model.Reader;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
 public class ReaderDTO {
+    @Null
+    private Integer readerId;
 
     @NotBlank
     private String name;
@@ -21,11 +24,12 @@ public class ReaderDTO {
     private String password;
 
     public static ReaderDTO fromEntity(Reader reader) {
-        ReaderDTO readerDTO = new ReaderDTO();
-        readerDTO.setName(reader.getName());
-        readerDTO.setEmail(reader.getEmail());
-        readerDTO.setPassword(reader.getPassword());
-        return readerDTO;
+        ReaderDTO dto = new ReaderDTO();
+        dto.setReaderId(reader.getId());
+        dto.setName(reader.getName());
+        dto.setEmail(reader.getEmail());
+        dto.setPassword(reader.getPassword());
+        return dto;
     }
 
     public Reader toEntity() {

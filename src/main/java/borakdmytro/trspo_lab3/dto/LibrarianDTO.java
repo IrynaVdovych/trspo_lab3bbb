@@ -1,14 +1,13 @@
 package borakdmytro.trspo_lab3.dto;
 
 import borakdmytro.trspo_lab3.model.Librarian;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Data
 public class LibrarianDTO {
+    @Null
+    private Integer librarianId;
     @NotBlank
     private String firstName;
 
@@ -24,6 +23,7 @@ public class LibrarianDTO {
 
     public static LibrarianDTO fromEntity(Librarian librarian) {
         LibrarianDTO dto = new LibrarianDTO();
+        dto.setLibrarianId(librarian.getId());
         dto.setFirstName(librarian.getFirstName());
         dto.setLastName(librarian.getLastName());
         dto.setEmail(librarian.getEmail());
