@@ -22,16 +22,15 @@ public class Borrowing {
     @JoinColumn(name = "book_id", referencedColumnName = "book_id")
     private Book book;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "librarian_id", referencedColumnName = "librarian_id")
-    private Librarian librarian;
-
     @PastOrPresent
+    @Column
     private LocalDateTime startDateTime;
 
     @Enumerated(EnumType.ORDINAL)
+    @Column
     private BorrowingType type;
 
     @Enumerated(EnumType.ORDINAL)
+    @Column
     private BorrowingStatus status;
 }
