@@ -1,11 +1,7 @@
 package borakdmytro.trspo_lab3.dto;
 
 import borakdmytro.trspo_lab3.model.Book;
-import jakarta.persistence.Column;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Data
@@ -21,19 +17,18 @@ public class BookDTO {
 
     @NotNull
     @Positive
-    private Integer pages;
+    private int pages;
 
     @NotNull
     @Positive
-    private Integer year;
+    private int year;
 
+    @NotNull
     @PositiveOrZero
-    @Column
     private int totalAmount;
 
-    @PositiveOrZero
-    @Column
-    private int availableAmount;
+    @Null // only for output
+    private Integer availableAmount;
 
     public static BookDTO fromEntity(Book book) {
         BookDTO dto = new BookDTO();
@@ -49,13 +44,13 @@ public class BookDTO {
 
     public Book toEntity() {
         Book book = new Book();
-        book.setTitle(this.getTitle());
-        book.setAuthor(this.getAuthor());
-        book.setAnnotation(this.getAnnotation());
-        book.setPages(this.getPages());
-        book.setYear(this.getYear());
-        book.setTotalAmount(this.getTotalAmount());
-        book.setAvailableAmount(this.getAvailableAmount());
+        book.setTitle(this.title);
+        book.setAuthor(this.author);
+        book.setAnnotation(this.annotation);
+        book.setPages(this.pages);
+        book.setYear(this.year);
+        book.setTotalAmount(this.totalAmount);
+        book.setAvailableAmount(this.totalAmount);
         return book;
     }
 }

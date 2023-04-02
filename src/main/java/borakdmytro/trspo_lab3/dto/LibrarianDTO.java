@@ -9,8 +9,6 @@ import lombok.Data;
 
 @Data
 public class LibrarianDTO {
-    private int id;
-
     @NotBlank
     private String firstName;
 
@@ -26,7 +24,6 @@ public class LibrarianDTO {
 
     public static LibrarianDTO fromEntity(Librarian librarian) {
         LibrarianDTO dto = new LibrarianDTO();
-        dto.setId(librarian.getId());
         dto.setFirstName(librarian.getFirstName());
         dto.setLastName(librarian.getLastName());
         dto.setEmail(librarian.getEmail());
@@ -36,7 +33,6 @@ public class LibrarianDTO {
 
     public Librarian toEntity() {
         Librarian librarian = new Librarian();
-        librarian.setId(this.id);
         librarian.setFirstName(this.firstName);
         librarian.setLastName(this.lastName);
         librarian.setEmail(this.email);
