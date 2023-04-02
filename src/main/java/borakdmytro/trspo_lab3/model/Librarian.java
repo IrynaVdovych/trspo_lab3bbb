@@ -18,16 +18,20 @@ public class Librarian {
     private int id;
 
     @NotBlank
+    @Column
     private String firstName;
 
+    @Column
     private String lastName;
 
     @NotBlank
     @Email
+    @Column(unique = true)
     private String email;
 
     @NotNull
     @Size(min = 6)
+    @Column
     private String password;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
